@@ -132,3 +132,15 @@ sudo python bartender.py &
 ```
 
 `your/pwd/path/here` should be replaced with the path you copied above. `sudo python bartender.py &` starts the bartender program in the background. Finally, press `esc` then `ZZ` to save and exit. 
+
+## Web Application installation
+
+Theres a script to install FixMix automatically.
+Type in the command line the following:
+
+```
+curl https://github.com/Schnigglas/fixmix/blob/main/auto-install/install.sh | bash
+```
+
+## Using The Web Application
+Navigate to the IP address of your device for example (you can usually find the IP address of your device from looking at your router's configuration/status pages). The router typically assigns IPs with prefixes of 192.168.1.XXX.  Heres an example of a network, so you'll see URLs like: http://192.168.1.42  Yours may look different depending on your routers firmware/manufacturer (i.e. 10.10.0.XXX, etc.)
