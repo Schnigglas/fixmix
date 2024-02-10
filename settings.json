@@ -1,0 +1,10 @@
+{"inventory": {
+    "pump_01": "vodka", 
+    "pump_02": "oj", 
+    "pump_03": "coke"}, 
+    
+    "assignments": {
+        "pump_01": 17, 
+        "pump_02": 27, 
+        "pump_03": 22}, 
+        "flowrate": 60}
