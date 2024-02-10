@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block cssextend %}
+<link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block title %} Cocktailkarte {% endblock %}
+
+{% block content %} 
+	<div class="container" max-width="500" max-height="500">
+		<div>
+			<div>
+				<form name="input" action="/work" method="POST">
+					<h3 class="h2 text-center text-white"> Welcher Drink darf es heute sein? </h3>
+						{% for drink_name, drink_data in drinklist.items()|sort %}
+						<div>
+							<div class="card-body">
+								<div class="card text-white bg-primary mb-3">
+									<h2 class = "cardtitle text-center">{{ drink_data['name'] }}</h2>
+									<img class="card-img-top" src="{{ url_for('static', filename=drink_data['image']) }}" height="shrink-to-fit" width="shrink-to-fit" alt="{{ drink_name }}">
+											
+											<p class= "card-text text-center">{{ drink_data['description'] }}</p>
+											<div class="text-center">
+												<button type="submit" name="makedrink" value="{{ drink_name }}" class="btn btn-success btn-lg form-inline">Machs mir!</button>
+											</div>
+											<h1>   </h1>
+								</div>	
+							</div>	
+						</div>
+						</hr>
+					
+								{% endfor %}
+				</form>
+			</div>
+		</div>
+            <!-- Load Refreshable Data (progress bar) -->
+            <!-- <div id="refreshdata"></div> -->
+	
+				
+  	</div> <!-- End Showcase -->
+	{% endblock %}

@@ -1,0 +1,8 @@
+.test {
+    background-color: #1b2028
+}
+
+.img-resize {
+    height:540px; /* you can use % */
+    width: auto;
+}

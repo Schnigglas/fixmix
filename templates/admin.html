@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block title %} Settings & Admin {% endblock %}
+
+{% block content %} 
+		<!-- Main Body Container -->
+    <div class="container">
+
+      <!-- Settings Success -->
+      {% if (action == "settings") and (errorcode == 0) %}
+        <div class="alert alert-success">
+          <b> Settings Updated Successfully.</b>
+        </div>
+			{% elif (action == "settings") and (errorcode == 1) %}
+        <div class="alert alert-danger">
+					{% for index in errormessage %}
+          <b>{{ index }}</b><br>
+					{% endfor %}
+        </div>
+      {% endif %}
+      <br>
+      <!-- Inventory Card -->
+      <form name="input" action="/admin/settings" method="POST">
+        <div class="card">
+  				<div class="card-header">
+  							Pumpen
+  				</div>
+  				<div class="card-body">
+						<table class="table">
+						    <thead>
+						      <tr>
+						        <th>Pumpen</th>
+						        <th>GPIO Zuweisung</th>
+						        <th>Zutat</th>
+						      </tr>
+						    </thead>
+						    <tbody>
+									{% for pump_number, pin_number in settings['assignments'].items()|sort %}
+						      <tr>
+						        <td>{{ pump_number }}</td>
+						        <td>
+											<div class="form-group">
+											  <select class="form-control" id="ass_{{ pump_number }}" name="ass_{{ pump_number }}">
+													{% for pin_index in available_GPIOs|sort %}
+														{% if (pin_index == pin_number) and (pin_index == 0) %}
+															<option selected value="{{ pin_index }}">Un-Assigned</option>
+														{% elif (pin_index == pin_number) %}
+														  <option selected value="{{ pin_index }}">{{ pin_index }}</option>
+														{% elif (pin_index == 0) %}
+															<option value="{{ pin_index }}">Un-Assigned</option>
+														{% else %}
+															<option value="{{ pin_index }}">{{ pin_index }}</option>
+														{% endif %}
+													{% endfor %}
+											  </select>
+											</div>
+										</td>
+						        <td>
+											<div class="form-group">
+												<select class="form-control" id="inv_{{ pump_number }}" name="inv_{{ pump_number }}">
+													{% for ingredient_index, ingredient_name in drink_db['ingredients'].items()|sort %}
+														{% if ingredient_index == settings['inventory'][pump_number] %}
+															<option selected value="{{ ingredient_index }}">{{ ingredient_name }}</option>
+														{% else %}
+															<option value="{{ ingredient_index }}">{{ ingredient_name }}</option>
+														{% endif %}
+													{% endfor %}
+												</select>
+											</div>
+
+										</td>
+						      </tr>
+									{% endfor %}
+						    </tbody>
+						  </table>
+						<button type="submit" class="btn btn-primary btn-sm">Einstellungen speichern</button>
+          </div>
+        </div>
+      </form>
+      <br>
+
+	<!-- Pump Settings Card -->
+	<form name="input" action="/admin/settings" method="POST">
+		<div class="card">
+			<div class="card-header">
+						Pumpen Einstellungen
+			</div>
+			<div class="card-body">
+		
+		<span class="badge badge-warning">INFO:</span><i class="small"> Setze die Flow Rate auf den richtigen Wert. Die Formel hierzu beträgt (x/150) * ml der entsprechenden Flüssigkeit.</i>
+		<div class="input-group mb-3">
+			<div class="input-group-prepend">
+				<span class="input-group-text" data-toggle="tooltip" title="Flow Rate: Adjust flow rate for the pumps installed. [Value = 1-100]"><i class="fas fa-wind"></i>&nbsp; Flow Rate[x/150]:</span>
+			</div>
+			<input id="flow_rate" type="number" min="1" max = "100" class="form-control" name="flow_rate" value="{{ settings['flowrate'] }}">
+		</div>
+
+		<button type="submit" class="btn btn-primary btn-sm">Einstellungen speichern</button>
+	</div>
+	</div>
+	</form>
+	<br>
+			<!-- Clean Function Card -->
+			<form name="input" action="/admin/clean" method="POST">
+        <div class="card">
+  				<div class="card-header">
+  							Waschgang
+  				</div>
+  				<div class="card-body">
+					Nach der Nutzung des FixMix solltest du die Schläuche reinigen um der Bildung von Bakterien vorzubeugen. Schließe einfach die betroffenen Pumpen an eine Wasserquelle an und starte das Reinigungsprogramm, du kannst auch einzelne Pumpen ansteuern. Es wird empfohlen, nach der Hälfte der Zeit die Schläuche aus dem Wasser zu nehmen, dass keine Flüssigkeit in den Schläuchen zurückbleibt.
+
+						<div class="form-group">
+							<select class="form-control" id="clean" name="clean">
+								<option selected value="pump_42">Alle säubern</option>
+								{% for pump_number, pin_number in settings['assignments'].items()|sort %}
+									<option value="{{ pump_number }}">{{ pump_number }}</option>
+								{% endfor %}
+							</select>
+						</div>
+
+					<button type="submit" class="btn btn-primary btn-sm">Starte Waschgang</button>
+				</div>
+			</div>
+			</form>
+			<br>
+			
+      <!-- Admin Functions Card -->
+			<div class="card">
+				<div class="card-header">
+							Admin Funktionen
+				</div>
+				<div class="card-body">
+						<!-- Reboot -->
+						<form name="input" action="/admin/reboot">
+							<!-- Button trigger modal -->
+							<button type="button" class="btn btn-warning btn-block" data-toggle="modal" data-target="#rebootModal">
+								System neustarten
+							</button>
+
+							<!-- Reboot Modal -->
+							<div class="modal fade" id="rebootModal" tabindex="-1" role="dialog" aria-labelledby="rebootModalLabel" aria-hidden="true">
+								<div class="modal-dialog" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="rebootModalLabel">Neustart</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<p>Bist du dir sicher, dass du das System neustarten möchstest?
+											<br><i>Ungespeicherte Einstellungen werden gelöscht.</i></p>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+											<button type="submit" class="btn btn-primary" name="reboot" value="True">Bestätigen</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
+						</form>
+
+						<br>
+						<!-- Shutdown -->
+						<form name="input" action="/admin/shutdown">
+							<!-- Button trigger modal -->
+							<button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#shutdownModal">
+								System herunterfahren
+							</button>
+
+							<!-- Shutdown Modal -->
+							<div class="modal fade" id="shutdownModal" tabindex="-1" role="dialog" aria-labelledby="shutdownModalLabel" aria-hidden="true">
+								<div class="modal-dialog" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="shutdownModalLabel">Herunterfahren</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+											<p>Bist du dir sicher, dass du das System herunterfahren möchstest?
+											<br><i>Ungespeicherte Einstellungen werden gelöscht. Das System muss manuell neugestartet werden.</i></p>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+											<button type="submit" class="btn btn-primary" name="shutdown" value="True">Bestätigen</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+
+					</div>
+				</div>
+			<br>
+
+			<div class="card">
+				<div class="card-header">
+							System Info
+				</div>
+	      <div class="card-body">
+					<b>CPU Info</b><br>
+	        {% for line in cpuinfo %}
+	          {{ line }}<br>
+	        {% endfor %}
+					<br>
+					<p><b>CPU Temperatur:</b> {{ temp }}</p>
+					<br>
+					<b>Netzwerk Info</b><br>
+					{% for lines in ifconfig %}
+						{{ lines }}<br>
+					{% endfor %}
+	      </div>
+			</div>
+			<br>
+
+			<div class="card">
+				<div class="card-header">
+							Uptime
+				</div>
+	      <div class="card-body">
+					{{ uptime }}
+				</div>
+	    </div>
+			<br>
+{% endblock %}
